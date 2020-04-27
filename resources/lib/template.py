@@ -9,8 +9,8 @@ import simpleeval, operator, ast
 from simpleeval import simple_eval
 
 ADDON        = xbmcaddon.Addon()
-ADDONID      = ADDON.getAddonInfo('id').decode( 'utf-8' )
-SKINPATH     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
+ADDONID      = ADDON.getAddonInfo('id')
+SKINPATH     = xbmc.translatePath( "special://skin/shortcuts/" )
 
 STRINGCOMPARE = "StringCompare"
 if int( xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0] ) >= 17:

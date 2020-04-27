@@ -6,7 +6,7 @@ import hashlib, hashlist
 import ast
 from xml.dom.minidom import parse
 from traceback import print_exc
-from htmlentitydefs import name2codepoint
+from html.entities import name2codepoint
 from unidecode import unidecode
 from unicodeutils import try_decode
 
@@ -14,13 +14,13 @@ import nodefunctions
 NODE = nodefunctions.NodeFunctions()
 
 ADDON        = xbmcaddon.Addon()
-ADDONID      = ADDON.getAddonInfo('id').decode( 'utf-8' )
+ADDONID      = ADDON.getAddonInfo('id')
 KODIVERSION  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 LANGUAGE     = ADDON.getLocalizedString
-CWD          = ADDON.getAddonInfo('path').decode("utf-8")
-DATAPATH     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), ADDONID )
-SKINPATH     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
-DEFAULTPATH  = xbmc.translatePath( os.path.join( CWD, 'resources', 'shortcuts').encode("utf-8") ).decode("utf-8")
+CWD          = ADDON.getAddonInfo('path')
+DATAPATH     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ), ADDONID )
+SKINPATH     = xbmc.translatePath( "special://skin/shortcuts/" )
+DEFAULTPATH  = xbmc.translatePath( os.path.join( CWD, 'resources', 'shortcuts').encode("utf-8") )
 
 # character entity reference
 CHAR_ENTITY_REXP = re.compile('&(%s);' % '|'.join(name2codepoint))
@@ -132,7 +132,7 @@ class DataFunctions():
         log( "Loading shortcuts for group " + group )
                 
         if profileDir is None:
-            profileDir = xbmc.translatePath( "special://profile/" ).decode( "utf-8" )
+            profileDir = xbmc.translatePath( "special://profile/" )
         
         userShortcuts = os.path.join( profileDir, "addon_data", ADDONID, self.slugify( group, True, isSubLevel = isSubLevel ) + ".DATA.xml" )
         skinShortcuts = os.path.join( SKINPATH , self.slugify( group ) + ".DATA.xml")
@@ -548,7 +548,7 @@ class DataFunctions():
         self.currentProperties = []
         self.defaultProperties = []
         
-        path = os.path.join( profileDir, "addon_data", ADDONID, xbmc.getSkinDir().decode('utf-8') + ".properties" ).encode( "utf-8" )
+        path = os.path.join( profileDir, "addon_data", ADDONID, xbmc.getSkinDir() + ".properties" ).encode( "utf-8" )
         #path = os.path.join( DATAPATH , xbmc.getSkinDir().decode('utf-8') + ".properties" )
         if xbmcvfs.exists( path ):
             # The properties file exists, load from it
@@ -787,22 +787,16 @@ class DataFunctions():
     def createNiceName ( self, item, noNonLocalized = False ):
         # Translate certain localized strings into non-localized form for labelID
         if noNonLocalized == False:
-            if int( KODIVERSION ) >= 18:
-                if item == "3":
-                    return "videos"
-                if item == "2":
-                    return "music"
-            else:
-                if item == "10006":
-                    return "videos"
-                if item == "10005":
-                    return "music"
+            if item == "10006":
+                return "videos"
             if item == "342":
                 return "movies"
             if item == "20343":
                 return "tvshows"
             if item == "32022":
                 return "livetv"
+            if item == "10005":
+                return "music"
             if item == "20389":
                 return "musicvideos"
             if item == "10002":
@@ -867,8 +861,6 @@ class DataFunctions():
             return "System.CanHibernate"
         elif action == "reset()" or action == "reset":
             return "System.CanReboot"
-        elif action == "system.logoff" and int( KODIVERSION ) >= 17:
-            return "[System.HasLoginScreen | Integer.IsGreater(System.ProfileCount,1)] + System.Loggedon"
         elif action == "system.logoff":
             return "[System.HasLoginScreen | IntegerGreaterThan(System.ProfileCount,1)] + System.Loggedon"
         elif action == "mastermode":
@@ -1029,7 +1021,7 @@ class DataFunctions():
             if files:
                 for file in files:
                     if file.endswith( ".hash" ) and not file.startswith( "%s-" %( xbmc.getSkinDir() ) ):
-                        canImport, skinName = self.parseHashFile( os.path.join( DATAPATH, file.decode( 'utf-8' ) ).encode( 'utf-8' ) )
+                        canImport, skinName = self.parseHashFile( os.path.join( DATAPATH, file ).encode( 'utf-8' ) )
                         if canImport == True:
                             skinNames.append( skinName )
                     elif file.endswith( ".DATA.xml" ) and not file.startswith( "%s-" %( xbmc.getSkinDir() ) ):
@@ -1099,8 +1091,8 @@ class DataFunctions():
                 newFile = oldFile.replace( skinName, xbmc.getSkinDir() )
             else:
                 newFile = "%s-%s" %( xbmc.getSkinDir(), oldFile )
-            oldPath = os.path.join( DATAPATH, oldFile.decode( 'utf-8' ) ).encode( 'utf-8' )
-            newPath = os.path.join( DATAPATH, newFile.decode( 'utf-8' ) ).encode( 'utf-8' )
+            oldPath = os.path.join( DATAPATH, oldFile ).encode( 'utf-8' )
+            newPath = os.path.join( DATAPATH, newFile ).encode( 'utf-8' )
 
             # Copy file
             xbmcvfs.copy( oldPath, newPath )

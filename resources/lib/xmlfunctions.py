@@ -16,7 +16,7 @@ ADDON        = xbmcaddon.Addon()
 ADDONID      = sys.modules[ "__main__" ].ADDONID
 ADDONVERSION = ADDON.getAddonInfo('version')
 KODIVERSION  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
-MASTERPATH   = os.path.join( xbmc.translatePath( "special://masterprofile/addon_data/" ).decode('utf-8'), ADDONID ).encode('utf-8')
+MASTERPATH   = os.path.join( xbmc.translatePath( "special://masterprofile/addon_data/" ), ADDONID )
 LANGUAGE     = ADDON.getLocalizedString
 
 STRINGCOMPARE = "StringCompare"
@@ -32,7 +32,7 @@ def log(txt):
         if isinstance (txt,str):
             txt = txt.decode('utf-8')
         message = u'%s: %s' % (ADDONID, txt)
-        xbmc.log(msg=message.encode('utf-8'), level=xbmc.LOGDEBUG)
+        xbmc.log(msg=message, level=xbmc.LOGDEBUG)
     
 class XMLFunctions():
     def __init__(self):
@@ -57,7 +57,7 @@ class XMLFunctions():
         xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-isrunning", "True" )
  
         # Get a list of profiles
-        fav_file = xbmc.translatePath( 'special://userdata/profiles.xml' ).decode("utf-8")
+        fav_file = xbmc.translatePath( 'special://userdata/profiles.xml' )
         tree = None
         if xbmcvfs.exists( fav_file ):
             f = xbmcvfs.File( fav_file )
@@ -67,16 +67,16 @@ class XMLFunctions():
         if tree is not None:
             profiles = tree.findall( "profile" )
             for profile in profiles:
-                name = profile.find( "name" ).text.encode( "utf-8" )
-                dir = profile.find( "directory" ).text.encode( "utf-8" )
+                name = profile.find( "name" ).text
+                dir = profile.find( "directory" ).text
                 log( "Profile found: " + name + " (" + dir + ")" )
                 # Localise the directory
                 if "://" in dir:
-                    dir = xbmc.translatePath( dir ).decode( "utf-8" )
+                    dir = xbmc.translatePath( dir )
                 else:
                     # Base if off of the master profile
-                    dir = xbmc.translatePath( os.path.join( "special://masterprofile", dir ) ).decode( "utf-8" )
-                profilelist.append( [ dir, "%s(System.ProfileName,%s)" %( STRINGCOMPARE, name.decode( "utf-8" ) ), name.decode( "utf-8" ) ] )
+                    dir = xbmc.translatePath( os.path.join( "special://masterprofile", dir ) )
+                profilelist.append( [ dir, "%s(System.ProfileName,%s)" %( STRINGCOMPARE, name ), name ] )
                 
         else:
             profilelist = [["special://masterprofile", None]]
@@ -173,7 +173,7 @@ class XMLFunctions():
         xbmc.executebuiltin( "Skin.SetString(skinshortcuts-sharedmenu,%s)" %( ADDON.getSetting( "shared_menu" ) ) )
             
         # Get the skins addon.xml file
-        addonpath = xbmc.translatePath( os.path.join( "special://skin/", 'addon.xml').encode("utf-8") ).decode("utf-8")
+        addonpath = xbmc.translatePath( os.path.join( "special://skin/", 'addon.xml') )
         addon = xmltree.parse( addonpath )
         extensionpoints = addon.findall( "extension" )
         paths = []
@@ -187,7 +187,7 @@ class XMLFunctions():
             if extensionpoint.attrib.get( "point" ) == "xbmc.gui.skin":
                 resolutions = extensionpoint.findall( "res" )
                 for resolution in resolutions:
-                    path = xbmc.translatePath( os.path.join( "special://skin/", resolution.attrib.get( "folder" ), "script-skinshortcuts-includes.xml").encode("utf-8") ).decode("utf-8")
+                    path = xbmc.translatePath( os.path.join( "special://skin/", resolution.attrib.get( "folder" ), "script-skinshortcuts-includes.xml") )
                     paths.append( path )
                     skinpaths.append( path )
         
@@ -662,7 +662,7 @@ class XMLFunctions():
         progress.update( 100, message = LANGUAGE( 32098 ) )
                 
         # Get the skins addon.xml file
-        addonpath = xbmc.translatePath( os.path.join( "special://skin/", 'addon.xml').encode("utf-8") ).decode("utf-8")
+        addonpath = xbmc.translatePath( os.path.join( "special://skin/", 'addon.xml') )
         addon = xmltree.parse( addonpath )
         extensionpoints = addon.findall( "extension" )
         paths = []
@@ -670,7 +670,7 @@ class XMLFunctions():
             if extensionpoint.attrib.get( "point" ) == "xbmc.gui.skin":
                 resolutions = extensionpoint.findall( "res" )
                 for resolution in resolutions:
-                    path = xbmc.translatePath( os.path.join( try_decode( self.skinDir ) , try_decode( resolution.attrib.get( "folder" ) ), "script-skinshortcuts-includes.xml").encode("utf-8") ).decode('utf-8')
+                    path = xbmc.translatePath( os.path.join( try_decode( self.skinDir ) , try_decode( resolution.attrib.get( "folder" ) ), "script-skinshortcuts-includes.xml") )
                     paths.append( path )
         skinVersion = addon.getroot().attrib.get( "version" )
         
@@ -702,7 +702,7 @@ class XMLFunctions():
         allProps = {}
 
         # Set ID
-        if itemid is not -1:
+        if itemid != -1:
             newelement.set( "id", str( itemid ) )
         idproperty = xmltree.SubElement( newelement, "property" )
         idproperty.set( "name", "id" )
@@ -767,7 +767,7 @@ class XMLFunctions():
                     visibleProperty.text = try_decode( property[1] )                    
                 else:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
-                    additionalproperty.set( "name", property[0].decode( "utf-8" ) )
+                    additionalproperty.set( "name", property[0] )
                     additionalproperty.text = property[1]
                     allProps[ property[ 0 ] ] = additionalproperty
                         
@@ -824,7 +824,7 @@ class XMLFunctions():
 
                     if matches:
                         additionalproperty = xmltree.SubElement( newelement, "property" )
-                        additionalproperty.set( "name", key.decode( "utf-8" ) )
+                        additionalproperty.set( "name", key )
                         additionalproperty.text = propertyMatch[ 0 ]
                         allProps[ key ] = additionalproperty
                         break
@@ -951,19 +951,19 @@ class XMLFunctions():
         
         # If this isn't the main menu, and we're cloning widgets or backgrounds...
         if groupName != "mainmenu":
-            if "clonewidgets" in options and len( self.MAINWIDGET ) is not 0:
+            if "clonewidgets" in options and len( self.MAINWIDGET ) != 0:
                 for key in self.MAINWIDGET:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", key )
                     additionalproperty.text = try_decode( self.MAINWIDGET[ key ] )
                     allProps[ key ] = additionalproperty
-            if "clonebackgrounds" in options and len( self.MAINBACKGROUND ) is not 0:
+            if "clonebackgrounds" in options and len( self.MAINBACKGROUND ) != 0:
                 for key in self.MAINBACKGROUND:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", key )
                     additionalproperty.text = DATA.local( self.MAINBACKGROUND[ key ] )[1]
                     allProps[ key ] = additionalproperty
-            if "cloneproperties" in options and len( self.MAINPROPERTIES ) is not 0:
+            if "cloneproperties" in options and len( self.MAINPROPERTIES ) != 0:
                 for key in self.MAINPROPERTIES:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", key )
@@ -980,8 +980,8 @@ class XMLFunctions():
                     propertyPattern = regexpPattern.sub(replacement, propertyPattern)
     
                 additionalproperty = xmltree.SubElement(newelement, "property")
-                additionalproperty.set("name", propertyName.decode("utf-8"))
-                additionalproperty.text = propertyPattern.decode("utf-8")
+                additionalproperty.set("name", propertyName)
+                additionalproperty.text = propertyPattern
                 allProps[ propertyName ] = additionalproperty
             
         return( newelement, allProps )

@@ -2,12 +2,12 @@
 import os, sys
 import xbmc, xbmcaddon, xbmcgui, xbmcplugin, urllib, xbmcvfs
 import xml.etree.ElementTree as xmltree
-import cPickle as pickle
+import pickle
 import pstats
 import random
 import time
 import calendar
-import thread
+import _thread
 from time import gmtime, strftime
 from datetime import datetime
 from traceback import print_exc
@@ -21,14 +21,14 @@ else:
     import json as simplejson
 
 ADDON        = xbmcaddon.Addon()
-ADDONID      = ADDON.getAddonInfo('id').decode( 'utf-8' )
+ADDONID      = ADDON.getAddonInfo('id')
 ADDONVERSION = ADDON.getAddonInfo('version')
 LANGUAGE     = ADDON.getLocalizedString
-CWD          = ADDON.getAddonInfo('path').decode("utf-8")
-ADDONNAME    = ADDON.getAddonInfo('name').decode("utf-8")
-RESOURCE     = xbmc.translatePath( os.path.join( CWD, 'resources', 'lib' ) ).decode("utf-8")
-DATAPATH     = os.path.join( xbmc.translatePath( "special://profile/" ).decode( 'utf-8' ), "addon_data", ADDONID )
-MASTERPATH   = os.path.join( xbmc.translatePath( "special://masterprofile/" ).decode( 'utf-8' ), "addon_data", ADDONID )
+CWD          = ADDON.getAddonInfo('path')
+ADDONNAME    = ADDON.getAddonInfo('name')
+RESOURCE     = xbmc.translatePath( os.path.join( CWD, 'resources', 'lib' ) )
+DATAPATH     = os.path.join( xbmc.translatePath( "special://profile/" ), "addon_data", ADDONID )
+MASTERPATH   = os.path.join( xbmc.translatePath( "special://masterprofile/" ), "addon_data", ADDONID )
 
 sys.path.append(RESOURCE)
 
@@ -159,7 +159,7 @@ class Main:
 
             elif selectedShortcut.getProperty( "Path" ) and selectedShortcut.getProperty( "custom" ) == "true":
                 # The user updated the path - so we just set that property
-                xbmc.executebuiltin( "Skin.SetString(%s,%s)" %( self.WIDGETPATH, urllib.unquote( selectedShortcut.getProperty( "Path" ) ) ) )
+                xbmc.executebuiltin( "Skin.SetString(%s,%s)" %( self.WIDGETPATH, urllib.parse.unquote( selectedShortcut.getProperty( "Path" ) ) ) )
 
             elif selectedShortcut.getProperty( "Path" ):
                 # The user selected the widget they wanted
@@ -185,7 +185,7 @@ class Main:
                         xbmc.executebuiltin( "Skin.Reset(%s)" %( self.WIDGETTARGET ) )
                 if self.WIDGETPATH:
                     if selectedShortcut.getProperty( "widgetPath" ):
-                        xbmc.executebuiltin( "Skin.SetString(%s,%s)" %( self.WIDGETPATH, urllib.unquote( selectedShortcut.getProperty( "widgetPath" ) ) ) )
+                        xbmc.executebuiltin( "Skin.SetString(%s,%s)" %( self.WIDGETPATH, selectedShortcut.getProperty( "widgetPath" ) ) )
                     else:
                         xbmc.executebuiltin( "Skin.Reset(%s)" %( self.WIDGETPATH ) )
 
@@ -275,15 +275,15 @@ class Main:
         self.DEFAULTGROUP = params.get( "defaultGroup", None )
 
         # Properties from context menu addon
-        self.CONTEXTFILENAME = urllib.unquote( params.get( "filename", "" ) )
+        self.CONTEXTFILENAME = urllib.parse.unquote( params.get( "filename", "" ) )
         self.CONTEXTLABEL = params.get( "label", "" )
         self.CONTEXTICON = params.get( "icon", "" )
         self.CONTEXTCONTENT = params.get( "content", "" )
         self.CONTEXTWINDOW = params.get( "window", "" )
 
         # Properties from external request to set properties
-        self.PROPERTIES = urllib.unquote( params.get( "property", "" ) )
-        self.VALUES = urllib.unquote( params.get( "value", "" ) )
+        self.PROPERTIES = urllib.parse.unquote( params.get( "property", "" ) )
+        self.VALUES = urllib.parse.unquote( params.get( "value", "" ) )
         self.LABELID = params.get( "labelID", "" )
     
     
@@ -292,7 +292,7 @@ class Main:
     # -----------------
 
     def _launch_shortcut( self, path ):
-        action = urllib.unquote( self.PATH )
+        action = urllib.parse.unquote( self.PATH )
         
         if action.find("::MULTIPLE::") == -1:
             # Single action, run it
@@ -388,7 +388,7 @@ class Main:
         if count != 0:
             xbmc.executebuiltin( "Control.Move(" + menuid + "," + str( count ) + " )" )
             
-        xbmc.executebuiltin( urllib.unquote( action ) )
+        xbmc.executebuiltin( urllib.parse.unquote( action ) )
         
 if ( __name__ == "__main__" ):
     log('script version %s started' % ADDONVERSION)

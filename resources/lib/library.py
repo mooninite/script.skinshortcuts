@@ -2,7 +2,7 @@
 import os, sys, datetime, unicodedata
 import xbmc, xbmcgui, xbmcvfs, urllib
 import xml.etree.ElementTree as xmltree
-import thread
+import _thread
 from xml.dom.minidom import parse
 from xml.sax.saxutils import escape as escapeXML
 from traceback import print_exc
@@ -20,7 +20,7 @@ else:
 ADDON        = sys.modules[ "__main__" ].ADDON
 ADDONID      = sys.modules[ "__main__" ].ADDONID
 CWD          = sys.modules[ "__main__" ].CWD
-DATAPATH     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), ADDONID )
+DATAPATH     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ), ADDONID )
 LANGUAGE     = sys.modules[ "__main__" ].LANGUAGE
 KODIVERSION  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 
@@ -714,11 +714,11 @@ class LibraryFunctions():
             prefix = "library://music"
             action = "||AUDIO||"
 
-        rootdir = os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", library )
+        rootdir = os.path.join( xbmc.translatePath( "special://profile" ), "library", library )
         if type == "custom":
             log( "Listing custom %s nodes..." %( library ) )
         else:
-            rootdir = os.path.join( xbmc.translatePath( "special://xbmc".decode('utf-8') ), "system", "library", library )
+            rootdir = os.path.join( xbmc.translatePath( "special://xbmc" ), "system", "library", library )
             log( "Listing default %s nodes..." %( library ) )
             
         nodes = NODE.get_nodes( rootdir, prefix )
@@ -763,20 +763,14 @@ class LibraryFunctions():
         # Videos, Movies, TV Shows, Live TV, Music, Music Videos, Pictures, Weather, Programs,
         # Play dvd, eject tray
         # Settings, File Manager, Profiles, System Info
-        if int( KODIVERSION ) >= 18:
-            listitems.append( self._create(["ActivateWindow(Videos)", "3", "32034", {"icon": "DefaultVideo.png"} ]) )
-        else:
-            listitems.append( self._create(["ActivateWindow(Videos)", "10006", "32034", {"icon": "DefaultVideo.png"} ]) )
+        listitems.append( self._create(["ActivateWindow(Videos)", "10006", "32034", {"icon": "DefaultVideo.png"} ]) )
         listitems.append( self._create(["ActivateWindow(Videos,videodb://movies/titles/,return)", "342", "32034", {"icon": "DefaultMovies.png"} ]) )
         listitems.append( self._create(["ActivateWindow(Videos,videodb://tvshows/titles/,return)", "20343", "32034", {"icon": "DefaultTVShows.png"} ]) )
 
         listitems.append( self._create(["ActivateWindow(TVGuide)", "32022", "32034", {"icon": "DefaultTVShows.png"} ]) )
         listitems.append( self._create(["ActivateWindow(RadioGuide)", "32087", "32034", {"icon": "DefaultTVShows.png"} ]) )
         
-        if int( KODIVERSION ) >= 18:
-            listitems.append( self._create(["ActivateWindow(Music)", "2", "32034", {"icon": "DefaultMusicAlbums.png"} ]) )
-        else:
-            listitems.append( self._create(["ActivateWindow(Music)", "10005", "32034", {"icon": "DefaultMusicAlbums.png"} ]) )
+        listitems.append( self._create(["ActivateWindow(Music)", "10005", "32034", {"icon": "DefaultMusicAlbums.png"} ]) )
         listitems.append( self._create(["PlayerControl(PartyMode)", "589", "32034", {"icon": "DefaultMusicAlbums.png"} ]) )
         listitems.append( self._create(["PlayerControl(PartyMode(Video))", "32108", "32034", {"icon": "DefaultMusicVideos.png"} ]) )
 
@@ -795,7 +789,7 @@ class LibraryFunctions():
 
         if int( KODIVERSION ) >= 16:
             listitems.append( self._create(["ActivateWindow(EventLog,events://,return)", "14111", "32034", {"icon": "Events.png"} ]) )
-
+        
         listitems.append( self._create(["ActivateWindow(Favourites)", "1036", "32034", {"icon": "Favourites.png"} ]) )
             
         self.addToDictionary( "common", listitems )
@@ -991,12 +985,12 @@ class LibraryFunctions():
                 try:
                     playlist = file['path']
                     label = file['label']
-                    playlistfile = xbmc.translatePath( playlist ).decode('utf-8')
+                    playlistfile = xbmc.translatePath( playlist )
                     mediaLibrary = path[2]
                     
                     if playlist.endswith( '.xsp' ):
                         contents = xbmcvfs.File(playlistfile, 'r')
-                        contents_data = contents.read().decode('utf-8')
+                        contents_data = contents.read()
                         xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
                         mediaType = "unknown"
                         for line in xmldata.getiterator():
@@ -1077,11 +1071,11 @@ class LibraryFunctions():
             for file in kodiwalk( path ):
                 playlist = file['path']
                 label = file['label']
-                playlistfile = xbmc.translatePath( playlist ).decode('utf-8')
+                playlistfile = xbmc.translatePath( playlist )
                 
                 if playlist.endswith( '-randomversion.xsp' ):
                     contents = xbmcvfs.File(playlistfile, 'r')
-                    contents_data = contents.read().decode('utf-8')
+                    contents_data = contents.read()
                     xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
                     for line in xmldata.getiterator():                               
                         if line.tag == "name":
@@ -1105,7 +1099,7 @@ class LibraryFunctions():
         listitems = []
         listing = None
         
-        fav_file = xbmc.translatePath( 'special://profile/favourites.xml' ).decode("utf-8")
+        fav_file = xbmc.translatePath( 'special://profile/favourites.xml' )
         if xbmcvfs.exists( fav_file ):
             doc = parse( fav_file )
             listing = doc.documentElement.getElementsByTagName( 'favourite' )
@@ -1930,7 +1924,7 @@ class LibraryFunctions():
                 if not image and item.get("file",""):
                     image = item["file"]
                 if image:
-                    image = urllib.unquote(image).decode('utf8')
+                    image = urllib.unquote(image)
                     if "$INFO" in image:
                         image = image.replace("image://","")
                         if image.endswith("/"):
